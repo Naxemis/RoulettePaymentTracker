@@ -38,3 +38,7 @@ out/
 *.iml
 *.ipr
 *.iws
+
+# Run #
+run/*
+!run/options.txt
