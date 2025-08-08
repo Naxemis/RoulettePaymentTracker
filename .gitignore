@@ -42,3 +42,6 @@ out/
 # Run #
 run/*
 !run/options.txt
+
+# Database #
+src/main/resources/database.json

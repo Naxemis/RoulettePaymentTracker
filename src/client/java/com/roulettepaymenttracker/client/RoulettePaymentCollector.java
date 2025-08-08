@@ -7,6 +7,7 @@ import net.minecraft.text.TextContent;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.Method;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,9 +18,9 @@ public class RoulettePaymentCollector {
     private static final int positionAmount = 2; // where's located amount that player has sent
     private static final int positionUsername = 4; // where's located player's username
     private static final int paymentComponentsSize = 5; // what's the size of the payment message
-    public String paymentAmount; // amount that user sent in payment
+    public int paymentAmount; // amount that user sent in payment
     public String paymentUser; // name of the user that sent the payment
-    public void getMessage() {
+    public void registerListener(BiConsumer<String, Integer> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
             collectAllTextComponents(text, paymentComponents); // collects all components
@@ -35,11 +36,13 @@ public class RoulettePaymentCollector {
                     if(areFirstWordsEqual && paymentComponents.size() == paymentComponentsSize) {
                         try {
                             TextContent priceContentComponent = paymentComponents.get(positionAmount).getContent(); // get the part of the message that starts with payment amount
-                            this.paymentAmount = extractStringFromComponent(priceContentComponent);
-                            System.out.println("Payment Amount: " + this.paymentAmount);
+                            this.paymentAmount = Integer.parseInt(extractStringFromComponent(priceContentComponent));
+                            //System.out.println("Payment Amount: " + this.paymentAmount);
 
                             this.paymentUser = paymentComponents.get(positionUsername).getString(); // gets payment username
-                            System.out.println("Payment User: " + this.paymentUser);
+                            //System.out.println("Payment User: " + this.paymentUser);
+
+                            onPaymentReceived.accept(paymentUser, paymentAmount);  // notify the callback
                         } catch (Exception exception) {
                             System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
                         }
