@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "RoulettePaymentTracker",
   "description": "",
-  "authors": [],
+  "authors": ["nxms"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/roulettepaymenttracker/icon.png",
