@@ -1,12 +1,12 @@
 package com.roulettepaymenttracker.client;
 
-import com.roulettepaymenttracker.RoulettePaymentDatabaseConnection;
+import com.roulettepaymenttracker.DatabaseConnection;
 import net.fabricmc.api.ClientModInitializer;
 
 public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
-    RoulettePaymentCollector paymentCollector = new RoulettePaymentCollector();
-    RoulettePaymentDatabaseConnection databaseConnection = new RoulettePaymentDatabaseConnection();
+    PaymentCollector paymentCollector = new PaymentCollector();
+    DatabaseConnection databaseConnection = new DatabaseConnection();
 
     @Override
     public void onInitializeClient() {

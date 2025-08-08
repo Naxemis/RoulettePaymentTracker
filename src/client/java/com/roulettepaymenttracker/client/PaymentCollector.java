@@ -11,15 +11,15 @@ import java.util.function.BiConsumer;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class RoulettePaymentCollector {
+public class PaymentCollector {
 
     private static final String paymentFirstComponent = "Otrzymałeś:"; // the word that will be checked with payment message
     private static final int positionFirstWord = 1; // where's located first word that player want to use for checking
     private static final int positionAmount = 2; // where's located amount that player has sent
     private static final int positionUsername = 4; // where's located player's username
     private static final int paymentComponentsSize = 5; // what's the size of the payment message
-    public int paymentAmount; // amount that user sent in payment
     public String paymentUser; // name of the user that sent the payment
+    public int paymentAmount; // amount that user sent in payment
     public void registerListener(BiConsumer<String, Integer> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
@@ -36,11 +36,9 @@ public class RoulettePaymentCollector {
                     if(areFirstWordsEqual && paymentComponents.size() == paymentComponentsSize) {
                         try {
                             TextContent priceContentComponent = paymentComponents.get(positionAmount).getContent(); // get the part of the message that starts with payment amount
-                            this.paymentAmount = Integer.parseInt(extractStringFromComponent(priceContentComponent));
-                            //System.out.println("Payment Amount: " + this.paymentAmount);
+                            this.paymentAmount = Integer.parseInt(StringUtils.getDigits(extractStringFromComponent(priceContentComponent)));
 
                             this.paymentUser = paymentComponents.get(positionUsername).getString(); // gets payment username
-                            //System.out.println("Payment User: " + this.paymentUser);
 
                             onPaymentReceived.accept(paymentUser, paymentAmount);  // notify the callback
                         } catch (Exception exception) {
