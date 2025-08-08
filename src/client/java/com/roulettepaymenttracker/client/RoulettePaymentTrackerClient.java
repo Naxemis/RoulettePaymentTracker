@@ -2,6 +2,7 @@ package com.roulettepaymenttracker.client;
 
 import com.roulettepaymenttracker.DatabaseConnection;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 
 public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
@@ -11,7 +12,18 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         paymentCollector.registerListener((paymentUser, paymentAmount) -> {
-            databaseConnection.upsertPayment(paymentUser, paymentAmount); // sends query to database
+            databaseConnection.upsertPayment(paymentUser, paymentAmount).exceptionally(expection -> { // sends data to database
+                System.out.println("Async database operation failed: " + expection.getMessage()); // shows error if async operation failed
+                return null;
+            });
+        });
+
+        onClientShutdown();
+    }
+
+    public void onClientShutdown() {
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            databaseConnection.async_process_shutdown(); // closes database connection thread
         });
     }
 }
