@@ -48,13 +48,13 @@ public class PaymentCollector {
                             onPaymentReceived.accept(paymentUsername, paymentAmount);  // notify the callback
                         } catch (Exception exception) {
                             System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
-                            actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§c");
+                            actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§4");
                             playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                         }
                     }
             } catch (Exception exception) {
                 System.out.println("Payment message pre-check failed: " + exception.getMessage());
-                actionBarNotification.sendMessage("Payment message pre-check failed", "§c");
+                actionBarNotification.sendMessage("Payment message pre-check failed", "§4");
                 playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
         });

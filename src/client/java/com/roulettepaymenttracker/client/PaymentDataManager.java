@@ -2,6 +2,7 @@ package com.roulettepaymenttracker.client;
 
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.Gson;
+import net.minecraft.sound.SoundEvents;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,6 +23,9 @@ import java.util.concurrent.Executors;
 
 public class PaymentDataManager {
 
+    private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
+    private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
     private static final Path paymentDataPath = Paths.get(filePath); // converts filePath string to a Path object
@@ -38,15 +42,15 @@ public class PaymentDataManager {
                     Type listType = new TypeToken<List<PlayerDataHolder>>(){}.getType(); // defines expected type od List<PlayerDataHolder>
                     listOfPlayerData = gson.fromJson(fileReader, listType); // deserialize JSON array into list of PlayerDataHolder objects
 
-
                     // if file was null, initialize an empty list to avoid NullPointerException
                     if (listOfPlayerData == null) {
                         listOfPlayerData = new ArrayList<>();
                     }
-
                 }
                 catch (IOException exception) {
                     System.out.println("Something went wrong reading existing data: " + exception.getMessage());
+                    actionBarNotification.sendMessage("Can't read data from JSON file.", "§4");
+                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                 }
             }
 
@@ -72,9 +76,14 @@ public class PaymentDataManager {
             // write the updated list back to the JSON file
             try (FileWriter fileWriter = new FileWriter(filePath)) {
                 gson.toJson(listOfPlayerData, fileWriter);
+
                 System.out.println("Succesfully saved data to JSON file");
+                actionBarNotification.sendMessage("Saved payment data to JSON file", "§a");
+                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
             } catch (IOException exception) {
                 System.out.println("Something went wrong during saving data to JSON file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Couldn't save payment data to JSON file.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
         }, executorService); // makes the method use dedicated thread pool for execution
     }
