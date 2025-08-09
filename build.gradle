@@ -52,6 +52,8 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    // Ensure the driver is available at runtime
+    runtimeOnly 'org.postgresql:postgresql:42.6.0'
     implementation 'org.postgresql:postgresql:42.6.0'
 }
 

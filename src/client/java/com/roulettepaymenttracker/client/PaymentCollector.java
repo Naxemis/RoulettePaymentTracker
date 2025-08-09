@@ -1,13 +1,15 @@
 package com.roulettepaymenttracker.client;
 
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+
 import net.minecraft.text.Text;
 import net.minecraft.text.TextContent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
+
+import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.StringUtils;
 

@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,11 +12,11 @@ import java.util.concurrent.Executors;
 public class DatabaseConnection {
 
     private static final String databaseURL = ConfigLoader.get_property("database_url");
-    private static final String upsertSQL = "INSERT INTO payments (username, amount) VALUES (?, ?) ON CONFLICT (username) DO UPDATE SET amount = payments.amount + EXCLUDED.amount;";
+    private static final String upsertSQL = "INSERT INTO payments (username, amount, session) VALUES (?, ?, ?) ON CONFLICT (username, session) DO UPDATE SET amount = payments.amount + EXCLUDED.amount;";
 
     private final ExecutorService databaseExecutor = Executors.newFixedThreadPool(2); // thread pool for database operations
 
-    public CompletableFuture<Void> upsertPayment(String paymentUser, int paymentAmount) {
+    public CompletableFuture<Void> upsertPayment(String paymentUser, int paymentAmount, int rouletteSession) {
 
         return CompletableFuture.runAsync(() -> { // runs the operation on background thread
                 try (Connection connection = DriverManager.getConnection(databaseURL)) { // connects with database
@@ -23,6 +24,7 @@ public class DatabaseConnection {
 
                     upsertStatement.setString(1, paymentUser); // in the place of first "?" places paymentUser value
                     upsertStatement.setInt(2, paymentAmount); // in the place of second "?" places paymentAmount value
+                    upsertStatement.setInt(3, rouletteSession); // in the place of third "?" place rouletteSession value
 
                     int rowsAffected = upsertStatement.executeUpdate(); // executes query
 

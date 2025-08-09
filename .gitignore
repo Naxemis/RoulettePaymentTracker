@@ -44,4 +44,4 @@ run/*
 !run/options.txt
 
 # Property files #
-*.properties
+src/main/resources/config.properties

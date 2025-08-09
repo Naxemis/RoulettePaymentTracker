@@ -9,9 +9,10 @@ public class ConfigLoader {
     static {
         try (InputStream input = ConfigLoader.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (input == null) {
-                System.out.println("Unable to find config.properties");
+                System.out.println("Unable to find config.properties.");
             } else {
                 properties.load(input);
+                System.out.println("Config file loaded successfully.");
             }
         } catch (Exception exception) {
             System.out.println("Error loading config.properties: " + exception.getMessage());
