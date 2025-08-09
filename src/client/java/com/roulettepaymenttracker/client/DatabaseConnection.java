@@ -1,6 +1,7 @@
 package com.roulettepaymenttracker.client;
 
 import com.roulettepaymenttracker.ConfigLoader;
+import net.minecraft.sound.SoundEvents;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -11,10 +12,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.roulettepaymenttracker.client.ActionBarNotification;
-
 public class DatabaseConnection {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
+    private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
 
     private static final String databaseURL = ConfigLoader.get_property("database_url");
     private static final String upsertSQL = "INSERT INTO payments (username, amount, session) VALUES (?, ?, ?) ON CONFLICT (username, session) DO UPDATE SET amount = payments.amount + EXCLUDED.amount;";
@@ -36,15 +36,13 @@ public class DatabaseConnection {
                     if (rowsAffected > 0) {
                         System.out.println("Successfully upserted payment in database for user: " + paymentUser);
                         actionBarNotification.sendMessage("Upserted payment in database.", "§a");
-                    } else {
-                        String message = "No rows affected by upserting payment in database.";
-                        System.out.println(message);
-                        actionBarNotification.sendMessage(message, "§6");
+                        playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
                     }
                 }
                 catch (SQLException exception) {
                     System.out.println("Something went wrong during upserting payment into database: " + exception.getMessage());
                     actionBarNotification.sendMessage("Something went wrong with database connection.", "§c");
+                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                 }
         }, databaseExecutor); // makes the method use dedicated thread pool for execution
     }

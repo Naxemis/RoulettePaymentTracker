@@ -2,6 +2,7 @@ package com.roulettepaymenttracker.client;
 
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextContent;
 
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 public class PaymentCollector {
 
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
+    private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
     private static final String paymentFirstComponent = "Otrzymałeś:"; // the word that will be checked with payment message
     private static final int positionFirstWord = 1; // where's located first word that player want to use for checking
     private static final int positionAmount = 2; // where's located amount that player has sent
@@ -47,11 +49,13 @@ public class PaymentCollector {
                         } catch (Exception exception) {
                             System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
                             actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§c");
+                            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                         }
                     }
             } catch (Exception exception) {
                 System.out.println("Payment message pre-check failed: " + exception.getMessage());
                 actionBarNotification.sendMessage("Payment message pre-check failed", "§c");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
         });
     }
