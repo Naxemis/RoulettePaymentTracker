@@ -24,9 +24,6 @@ loom {
         client {
             vmArgs.add("-Djava.net.preferIPv4Stack=true")
         }
-        server {
-            vmArgs.add("-Djava.net.preferIPv4Stack=true")
-        }
     }
 }
 

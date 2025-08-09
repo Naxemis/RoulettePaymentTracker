@@ -1,7 +1,5 @@
 package com.roulettepaymenttracker.client;
 
-import com.roulettepaymenttracker.DatabaseConnection;
-
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 
