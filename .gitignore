@@ -43,5 +43,5 @@ out/
 run/*
 !run/options.txt
 
-# Database #
-src/main/resources/database.json
+# Property files #
+*.properties
