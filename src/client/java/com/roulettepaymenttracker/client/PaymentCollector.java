@@ -53,9 +53,7 @@ public class PaymentCollector {
                         }
                     }
             } catch (Exception exception) {
-                System.out.println("Payment message pre-check failed: " + exception.getMessage());
-                actionBarNotification.sendMessage("Payment message pre-check failed", "§4");
-                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+                System.out.println("Message didn't pass the preliminary check: " + exception.getMessage());
             }
         });
     }
