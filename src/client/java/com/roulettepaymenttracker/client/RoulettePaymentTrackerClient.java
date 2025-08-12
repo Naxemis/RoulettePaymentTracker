@@ -2,11 +2,28 @@ package com.roulettepaymenttracker.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
     PaymentCollector paymentCollector = new PaymentCollector();
     PaymentDataManager paymentDataManager = new PaymentDataManager();
+
+    private int tickCounter = 0;
+    private static final int updateWinnerDataTicks = 10; // 20 ticks == 1 second
+    WinnerDataManager winnerDataManager = new WinnerDataManager();
+    private void startWatchingWinnerData() {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            tickCounter++;
+            if (tickCounter >= updateWinnerDataTicks) {
+                tickCounter = 0;
+                winnerDataManager.updateWinnerData().exceptionally(expection -> {
+                    System.out.println("Something went wrong when trying to run reading winner data from JSON file async operation: " + expection.getMessage());
+                    return null;
+                });
+            }
+        });
+    }
 
     @Override
     public void onInitializeClient() {
@@ -17,6 +34,8 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
             });
         });
 
+        startWatchingWinnerData();
+
         onClientShutdown();
     }
 
@@ -24,6 +43,7 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             paymentDataManager.clearData();
             paymentDataManager.async_process_shutdown();
+            winnerDataManager.async_process_shutdown();
         });
     }
 }
