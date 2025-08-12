@@ -30,7 +30,7 @@ public class RouletteCommands {
             }
 
             JsonObject json = new JsonObject();
-            json.addProperty("rouletteActive", rouletteStatus.get());
+            json.addProperty("rouletteStatus", rouletteStatus.get());
 
             try (FileWriter fileWriter = new FileWriter(filePath)) {
                 gson.toJson(json, fileWriter);
@@ -86,6 +86,10 @@ public class RouletteCommands {
                             )
             );
         });
+    }
+
+    public boolean getRouletteStatus() {
+        return rouletteStatus.get();
     }
 
     public void reset_roulette_status() {
