@@ -25,7 +25,6 @@ public class PaymentDataManager {
 
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
-
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
     private static final Path paymentDataPath = Paths.get(filePath); // converts filePath string to a Path object

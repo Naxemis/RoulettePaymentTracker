@@ -3,9 +3,11 @@ package com.roulettepaymenttracker.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
+    RouletteCommands rouletteCommands = new RouletteCommands();
     PaymentCollector paymentCollector = new PaymentCollector();
     PaymentDataManager paymentDataManager = new PaymentDataManager();
 
@@ -27,6 +29,12 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        rouletteCommands.register();
+
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            rouletteCommands.reset_roulette_status();
+        });
+
         paymentCollector.registerListener((paymentUsername, paymentAmount) -> {
             paymentDataManager.saveData(paymentUsername, paymentAmount).exceptionally(expection -> { // saves data to JSON file
                 System.out.println("Something went wrong when trying to run saving data to JSON file async operation: " + expection.getMessage()); // shows error if async operation failed
@@ -44,6 +52,7 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
             paymentDataManager.clearData();
             paymentDataManager.async_process_shutdown();
             winnerDataManager.async_process_shutdown();
+            rouletteCommands.reset_roulette_status();
         });
     }
 }
