@@ -15,35 +15,32 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang3.StringUtils;
 
 public class PaymentCollector {
-
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
-    private static final String paymentFirstComponent = "Otrzymałeś:"; // the word that will be checked with payment message
-    private static final int positionFirstWord = 1; // where's located first word that player want to use for checking
-    private static final int positionAmount = 2; // where's located amount that player has sent
-    private static final int positionUsername = 4; // where's located player's username
-    private static final int paymentComponentsSize = 5; // what's the size of the payment message
+    private static final PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
+
     public String paymentUsername; // name of the user that sent the payment
     public int paymentAmount; // amount that user sent in payment
+
     public void registerListener(BiConsumer<String, Integer> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
             collectAllTextComponents(text, paymentComponents); // collects all components
 
             try {
-                    TextContent firstContentComponent = paymentComponents.get(positionFirstWord).getContent(); // get the part of the message that starts with specified later word
+                    TextContent firstContentComponent = paymentComponents.get(paymentCollectorCommands.getPositionOfSpecifiedWord()).getContent(); // get the part of the message that starts with specified later word
                     String firstContentString = extractStringFromComponent(firstContentComponent);
                     String firstContentStringSpaceless = StringUtils.deleteWhitespace(firstContentString);
 
                     // checks if the first word specified by player and first word, that have position specified by player, the same
-                    boolean areFirstWordsEqual = firstContentStringSpaceless.equals(paymentFirstComponent);
+                    boolean areFirstWordsEqual = firstContentStringSpaceless.equals(paymentCollectorCommands.getSpecifiedComponentWord());
 
-                    if(areFirstWordsEqual && paymentComponents.size() == paymentComponentsSize) {
+                    if(areFirstWordsEqual && paymentComponents.size() == paymentCollectorCommands.getPaymentMessageComponentsSize()) {
                         try {
-                            TextContent priceContentComponent = paymentComponents.get(positionAmount).getContent(); // get the part of the message that starts with payment amount
+                            TextContent priceContentComponent = paymentComponents.get(paymentCollectorCommands.getPositionOfAmount()).getContent(); // get the part of the message that starts with payment amount
                             this.paymentAmount = Integer.parseInt(StringUtils.getDigits(extractStringFromComponent(priceContentComponent)));
 
-                            this.paymentUsername = paymentComponents.get(positionUsername).getString(); // gets payment username
+                            this.paymentUsername = paymentComponents.get(paymentCollectorCommands.getPositionOfUsername()).getString(); // gets payment username
 
                             onPaymentReceived.accept(paymentUsername, paymentAmount);  // notify the callback
                         } catch (Exception exception) {
@@ -53,7 +50,7 @@ public class PaymentCollector {
                         }
                     }
             } catch (Exception exception) {
-                System.out.println("Message didn't pass the preliminary check: " + exception.getMessage());
+                // ignore failed preliminary message check
             }
         });
     }

@@ -7,9 +7,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
-    RouletteCommands rouletteCommands = new RouletteCommands();
+    RouletteStatusCommands rouletteStatusCommands = new RouletteStatusCommands();
+    PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
     PaymentCollector paymentCollector = new PaymentCollector();
     PaymentDataManager paymentDataManager = new PaymentDataManager();
+
+    RouletteOtherCommands rouletteOtherCommands = new RouletteOtherCommands();
 
     private int tickCounter = 0;
     private static final int updateWinnerDataTicks = 10; // 20 ticks == 1 second
@@ -20,7 +23,7 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
             if (tickCounter >= updateWinnerDataTicks) {
                 tickCounter = 0;
                 winnerDataManager.updateWinnerData().exceptionally(expection -> {
-                    System.out.println("Something went wrong when trying to run reading winner data from JSON file async operation: " + expection.getMessage());
+                    System.out.println("Something went wrong when trying to read winner data from JSON file async operation: " + expection.getMessage());
                     return null;
                 });
             }
@@ -29,10 +32,15 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        rouletteCommands.register();
+        rouletteStatusCommands.register();
+
+        paymentCollectorCommands.loadConfigFromJSON();
+        paymentCollectorCommands.register();
+
+        rouletteOtherCommands.register();
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            rouletteCommands.reset_roulette_status();
+            rouletteStatusCommands.reset_roulette_status();
         });
 
         paymentCollector.registerListener((paymentUsername, paymentAmount) -> {
@@ -51,7 +59,7 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             paymentDataManager.async_process_shutdown();
             winnerDataManager.async_process_shutdown();
-            rouletteCommands.reset_roulette_status();
+            rouletteStatusCommands.reset_roulette_status();
         });
     }
 }

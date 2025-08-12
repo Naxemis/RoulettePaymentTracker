@@ -22,12 +22,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PaymentDataManager {
-    private static final RouletteCommands rouletteCommands = new RouletteCommands();
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
+
     private static final Gson gson = new Gson(); // creates Gson instance used for JSON serialization and deserialization
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentData.json"; //file path to JSON file
     private static final Path paymentDataPath = Paths.get(filePath); // converts filePath string to a Path object
+
     private final ExecutorService executorService = Executors.newFixedThreadPool(2); // thread pool for database operations
 
     public CompletableFuture<Void> saveData(String paymentUsername, int paymentAmount) {
@@ -50,6 +51,24 @@ public class PaymentDataManager {
                     System.out.println("Something went wrong reading existing data: " + exception.getMessage());
                     actionBarNotification.sendMessage("Can't read data from JSON file.", "§4");
                     playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+                }
+            }
+            else {
+                System.out.println("Couldn't find paymentData.json file.");
+                try {
+                    System.out.println("Creating directories for paymentData.json file.");
+                    Files.createDirectories(paymentDataPath.getParent());
+
+                    try {
+                        System.out.println("Creating empty paymentData.json file.");
+                        String defaultJson = "[]";
+                        Files.write(paymentDataPath, defaultJson.getBytes());
+                        System.out.println("Created empty paymentData.json file.");
+                    } catch (IOException exception) {
+                        System.out.println("Failed to create empty paymentData.json file: " + exception.getMessage());
+                    }
+                } catch (IOException exception) {
+                    System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
                 }
             }
 

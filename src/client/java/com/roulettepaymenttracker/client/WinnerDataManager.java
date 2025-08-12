@@ -26,7 +26,6 @@ public class WinnerDataManager {
         int amount;
     }
 
-
     private final ExecutorService executorService = Executors.newFixedThreadPool(1); // thread pool for database operations
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
