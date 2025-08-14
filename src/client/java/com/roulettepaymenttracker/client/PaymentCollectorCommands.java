@@ -12,7 +12,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,24 +47,6 @@ public class PaymentCollectorCommands {
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/paymentCollectorConfig.json";
     private static final Path paymentCollectorConfigFilePath = Paths.get(filePath);
 
-    private void createJSON(String successMessage, String exceptionMessage) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
-            jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
-            jsonObject.addProperty("positionOfAmount", positionOfAmount);
-            jsonObject.addProperty("positionOfUsername", positionOfUsername);
-            jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
-
-            try (FileWriter fileWriter = new FileWriter(filePath)) {
-                gson.toJson(jsonObject, fileWriter);
-                System.out.println(successMessage);
-                actionBarNotification.sendMessage("Saved data to config.", "§a");
-                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-            } catch (IOException exception) {
-                System.out.println(exceptionMessage + exception.getMessage());
-            }
-    }
-
     public void saveConfigToJSON() {
         try { // created the directory if it's not existing
             if (!Files.exists(paymentCollectorConfigFilePath.getParent())) {
@@ -85,7 +66,7 @@ public class PaymentCollectorCommands {
         jsonObject.addProperty("positionOfUsername", positionOfUsername);
         jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
         if (Files.exists(paymentCollectorConfigFilePath)) {
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
+            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath, StandardCharsets.UTF_8)) {
                 gson.toJson(jsonObject, fileWriter);
                 System.out.println("Succesfully saved paymentCollectorConfig.json file.");
                 actionBarNotification.sendMessage("Saved data to config.", "§a");
@@ -98,9 +79,9 @@ public class PaymentCollectorCommands {
         }
         else {
             System.out.println("paymentCollectorConfig.json file not found.");
-            System.out.println("Creating paymentCollectorConfig.json file.");;
+            System.out.println("Creating paymentCollectorConfig.json file.");
 
-            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
+            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath, StandardCharsets.UTF_8)) {
                 gson.toJson(jsonObject, fileWriter);
                 System.out.println("Succesfully created paymentCollectorConfig.json file.");
             } catch (IOException exception) {
@@ -120,6 +101,29 @@ public class PaymentCollectorCommands {
         }
         catch (IOException exepction) {
             System.err.println("Failed to create directories for paymentCollectorConfig.json file.: " + exepction.getMessage());
+        }
+
+        if (!Files.exists(paymentCollectorConfigFilePath)) {
+            System.out.println("paymentCollectorConfig.json file not found.");
+            System.out.println("Creating paymentCollectorConfig.json file with default values.");
+
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
+            jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
+            jsonObject.addProperty("positionOfAmount", positionOfAmount);
+            jsonObject.addProperty("positionOfUsername", positionOfUsername);
+            jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
+
+            try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
+                gson.toJson(jsonObject, fileWriter);
+                System.out.println("Succesfully created paymentCollectorConfig.json file.");
+                actionBarNotification.sendMessage("Saved data to config.", "§a");
+                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+            } catch (IOException exception) {
+                System.out.println("Failed to create paymentCollectorConfig.json file: " + exception.getMessage());
+            }
+
+            return;
         }
 
         try {
@@ -143,26 +147,6 @@ public class PaymentCollectorCommands {
                     paymentMessageComponentsSize = json.get("paymentMessageComponentsSize").getAsInt();
 
                 System.out.println("Successfully loaded payment collector config.");
-            }
-            else {
-                System.out.println("paymentCollectorConfig.json file not found.");
-                System.out.println("Creating paymentCollectorConfig.json file with default values.");
-
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
-                jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
-                jsonObject.addProperty("positionOfAmount", positionOfAmount);
-                jsonObject.addProperty("positionOfUsername", positionOfUsername);
-                jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
-
-                try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
-                    gson.toJson(jsonObject, fileWriter);
-                    System.out.println("Succesfully created paymentCollectorConfig.json file.");
-                    actionBarNotification.sendMessage("Saved data to config.", "§a");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-                } catch (IOException exception) {
-                    System.out.println("Failed to create paymentCollectorConfig.json file: " + exception.getMessage());
-                }
             }
         } catch (IOException exception) {
             System.err.println("Failed to load payment collector config: " + exception.getMessage());

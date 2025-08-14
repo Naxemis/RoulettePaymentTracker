@@ -35,21 +35,7 @@ public class RouletteStatusCommands {
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("rouletteStatus", rouletteStatus.get());
-        if (Files.exists(statusFilePath)) {
-
-            try (FileWriter fileWriter = new FileWriter(filePath)) {
-                gson.toJson(jsonObject, fileWriter);
-                System.out.println("Saved rouletteStatus.json file.");
-                actionBarNotification.sendMessage("Saved roulette status.", "§a");
-                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
-            }
-            catch (IOException exception) {
-                System.out.println("Failed to save rouletteStatus.json file: " + exception.getMessage());
-                actionBarNotification.sendMessage("Failed to save roulette status.", "§4");
-                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-            }
-        }
-        else {
+        if (!Files.exists(statusFilePath)) {
             System.out.println("rouletteStatus.json file not found.");
             System.out.println("Creating rouletteStatus.json file.");
 
@@ -60,6 +46,20 @@ public class RouletteStatusCommands {
             catch (IOException exception) {
                 System.out.println("Failed to create rouletteStatus.json file: " + exception.getMessage());
                 actionBarNotification.sendMessage("Failed to create rouletteStatus.json.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            }
+        }
+
+        if (Files.exists(statusFilePath)) {
+            try (FileWriter fileWriter = new FileWriter(filePath)) {
+                gson.toJson(jsonObject, fileWriter);
+                System.out.println("Saved rouletteStatus.json file.");
+                actionBarNotification.sendMessage("Saved roulette status.", "§a");
+                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+            }
+            catch (IOException exception) {
+                System.out.println("Failed to save rouletteStatus.json file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Failed to save roulette status.", "§4");
                 playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
         }
