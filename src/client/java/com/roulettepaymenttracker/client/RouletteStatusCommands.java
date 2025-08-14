@@ -16,7 +16,6 @@ import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RouletteStatusCommands {
-
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
     private final AtomicBoolean rouletteStatus = new AtomicBoolean(false);
@@ -25,43 +24,44 @@ public class RouletteStatusCommands {
     private static final String filePath = System.getenv("APPDATA") + "/RoulettePaymentTracker/rouletteStatus.json";
     private static final Path statusFilePath = Paths.get(filePath);
     private void saveSatusToJSON() {
-        try {
-            if (Files.exists(statusFilePath.getParent())) { // created the directory if it's not existing
+        try { // created the directory if it's not existing
+            if (!Files.exists(statusFilePath.getParent())) {
+                System.out.println("Creating directories for rouletteStatus.json.");
                 Files.createDirectories(statusFilePath.getParent());
             }
-            else {
-                System.out.println("Roulette status file not found, loading defaults.");
-                try {
-                    System.out.println("Creating directories for rouletteStatus.json file.");
-                    Files.createDirectories(statusFilePath.getParent());
+        } catch (Exception exception) {
+            System.out.println("Failed to create directories for rouletteStatus.json: " + exception.getMessage());
+        }
 
-                    try {
-                        System.out.println("Creating empty rouletteStatus.json file.");
-                        String defaultJson = "";
-                        Files.write(statusFilePath, defaultJson.getBytes());
-                        System.out.println("Created empty rouletteStatus.json file.");
-                    } catch (IOException exception) {
-                        System.out.println("Failed to create empty rouletteStatus.json file: " + exception.getMessage());
-                    }
-                } catch (IOException exception) {
-                    System.out.println("Failed to create directories for rouletteStatus.json file: " + exception.getMessage());
-                }
-            }
-
-            JsonObject json = new JsonObject();
-            json.addProperty("rouletteStatus", rouletteStatus.get());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("rouletteStatus", rouletteStatus.get());
+        if (Files.exists(statusFilePath)) {
 
             try (FileWriter fileWriter = new FileWriter(filePath)) {
-                gson.toJson(json, fileWriter);
-                System.out.println("Successfully saved roulette status: " + rouletteStatus.get());
+                gson.toJson(jsonObject, fileWriter);
+                System.out.println("Saved rouletteStatus.json file.");
                 actionBarNotification.sendMessage("Saved roulette status.", "§a");
                 playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
             }
+            catch (IOException exception) {
+                System.out.println("Failed to save rouletteStatus.json file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Failed to save roulette status.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            }
+        }
+        else {
+            System.out.println("rouletteStatus.json file not found.");
+            System.out.println("Creating rouletteStatus.json file.");
 
-        } catch (IOException exepction) {
-            System.err.println("Failed to save roulette status: " + exepction.getMessage());
-            actionBarNotification.sendMessage("Failed to save roulette status.", "§4");
-            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            try (FileWriter fileWriter = new FileWriter(filePath)) {
+                gson.toJson(jsonObject, fileWriter);
+                System.out.println("Succesfully created rouletteStatus.json file.");
+            }
+            catch (IOException exception) {
+                System.out.println("Failed to create rouletteStatus.json file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Failed to create rouletteStatus.json.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+            }
         }
     }
 
@@ -104,10 +104,6 @@ public class RouletteStatusCommands {
                             )
             );
         });
-    }
-
-    public boolean getRouletteStatus() {
-        return rouletteStatus.get();
     }
 
     public void reset_roulette_status() {

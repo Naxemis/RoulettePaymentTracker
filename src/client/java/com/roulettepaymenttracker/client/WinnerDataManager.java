@@ -60,7 +60,9 @@ public class WinnerDataManager {
                 }
 
             } catch (IOException exception) {
-                System.out.println("Couldn't read data from winnerData JSON file: " + exception.getMessage());
+                System.out.println("Filed to read data from winnerData JSON file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Failed to read winner data.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
         }, executorService);
     }

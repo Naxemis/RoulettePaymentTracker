@@ -37,6 +37,16 @@ public class PaymentDataManager {
             PlayerDataHolder newPlayerData = new PlayerDataHolder(paymentUsername, paymentAmount); // hold new player's data
             List<PlayerDataHolder> listOfPlayerData = new ArrayList<>(); // holds all player's data
 
+            try { // created the directory if it's not existing
+                if(!Files.exists(paymentDataPath.getParent())) {
+                    System.out.println("Creating directories for paymentData.json file.");
+                    Files.createDirectories(paymentDataPath.getParent());
+                }
+            }
+            catch (IOException exception) {
+                System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
+            }
+
             if (Files.exists(paymentDataPath)) { // check if .json file already exists
                 try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) { // reads existing data
                     Type listType = new TypeToken<List<PlayerDataHolder>>(){}.getType(); // defines expected type od List<PlayerDataHolder>
@@ -56,19 +66,15 @@ public class PaymentDataManager {
             else {
                 System.out.println("Couldn't find paymentData.json file.");
                 try {
-                    System.out.println("Creating directories for paymentData.json file.");
-                    Files.createDirectories(paymentDataPath.getParent());
-
-                    try {
-                        System.out.println("Creating empty paymentData.json file.");
-                        String defaultJson = "[]";
-                        Files.write(paymentDataPath, defaultJson.getBytes());
-                        System.out.println("Created empty paymentData.json file.");
-                    } catch (IOException exception) {
-                        System.out.println("Failed to create empty paymentData.json file: " + exception.getMessage());
-                    }
-                } catch (IOException exception) {
-                    System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
+                    System.out.println("Creating an empty paymentData.json file.");
+                    String defaultJson = "[]";
+                    Files.write(paymentDataPath, defaultJson.getBytes());
+                    System.out.println("Created an empty paymentData.json file.");
+                }
+                catch (IOException exception) {
+                    System.out.println("Failed to create empty paymentData.json file: " + exception.getMessage());
+                    actionBarNotification.sendMessage("Failed to create paymentData.json.", "§4");
+                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                 }
             }
 
@@ -95,8 +101,8 @@ public class PaymentDataManager {
             try (FileWriter fileWriter = new FileWriter(filePath)) {
                 gson.toJson(listOfPlayerData, fileWriter);
 
-                System.out.println("Succesfully saved data to JSON file");
-                actionBarNotification.sendMessage("Saved payment data to JSON file", "§a");
+                System.out.println("Succesfully saved payment data to JSON file");
+                actionBarNotification.sendMessage("Saved payment data to JSON file.", "§a");
                 playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
             } catch (IOException exception) {
                 System.out.println("Something went wrong during saving data to JSON file: " + exception.getMessage());
