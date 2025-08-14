@@ -28,29 +28,28 @@ public class PaymentCollector {
             collectAllTextComponents(text, paymentComponents); // collects all components
 
             try {
-                    TextContent firstContentComponent = paymentComponents.get(paymentCollectorCommands.getPositionOfSpecifiedWord()).getContent(); // get the part of the message that starts with specified later word
-                    String firstContentString = extractStringFromComponent(firstContentComponent);
-                    String firstContentStringSpaceless = StringUtils.deleteWhitespace(firstContentString);
+                String[] componentArray = paymentComponents.getFirst().getString().split(" ");
 
-                    // checks if the first word specified by player and first word, that have position specified by player, the same
-                    boolean areFirstWordsEqual = firstContentStringSpaceless.equals(paymentCollectorCommands.getSpecifiedComponentWord());
+                // checks if the first word specified by player and first word, that have position specified by player, the same
+                boolean areFirstWordsEqual = componentArray[paymentCollectorCommands.getPositionOfSpecifiedWord()].equals(paymentCollectorCommands.getSpecifiedComponentWord());
+                boolean isSizeEqual = paymentComponents.size() == paymentCollectorCommands.getPaymentMessageComponentsSize();
 
-                    if(areFirstWordsEqual && paymentComponents.size() == paymentCollectorCommands.getPaymentMessageComponentsSize()) {
-                        try {
-                            TextContent priceContentComponent = paymentComponents.get(paymentCollectorCommands.getPositionOfAmount()).getContent(); // get the part of the message that starts with payment amount
-                            this.paymentAmount = Integer.parseInt(StringUtils.getDigits(extractStringFromComponent(priceContentComponent)));
+                if(areFirstWordsEqual && isSizeEqual) {
+                    try {
+                        String priceContentComponent = componentArray[paymentCollectorCommands.getPositionOfAmount()]; // get the part of the message that starts with payment amount
+                        this.paymentAmount = Integer.parseInt(StringUtils.getDigits(priceContentComponent));
 
-                            this.paymentUsername = paymentComponents.get(paymentCollectorCommands.getPositionOfUsername()).getString(); // gets payment username
+                        this.paymentUsername = componentArray[paymentCollectorCommands.getPositionOfUsername()]; // gets payment username
 
-                            onPaymentReceived.accept(paymentUsername, paymentAmount);  // notify the callback
-                        } catch (Exception exception) {
-                            System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
-                            actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§4");
-                            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-                        }
+                        onPaymentReceived.accept(paymentUsername, paymentAmount);  // notify the callback
+                    } catch (Exception exception) {
+                        System.out.println("Failed to retrieve payment price and username: " + exception.getMessage());
+                        actionBarNotification.sendMessage("Failed to retrieve payment price and username", "§4");
+                        playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
                     }
+                }
             } catch (Exception exception) {
-                // ignore failed preliminary message check
+                // Ignore
             }
         });
     }

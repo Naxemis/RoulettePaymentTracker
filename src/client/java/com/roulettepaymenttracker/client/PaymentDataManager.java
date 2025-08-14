@@ -47,7 +47,7 @@ public class PaymentDataManager {
                 System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
             }
 
-            if (!Files.exists(paymentDataPath)) { // check if .json file already exists
+            if (!Files.exists(paymentDataPath)) {
                 System.out.println("Couldn't find paymentData.json file.");
                 try {
                     System.out.println("Creating an empty paymentData.json file.");

@@ -44,7 +44,7 @@ public class RouletteOtherCommands {
                                             client.player.sendMessage(Text.literal(""),false);
 
                                             client.player.sendMessage(Text.literal("§a/roulette collectorconfig set messagecomponentsize <number>"), false);
-                                            client.player.sendMessage(Text.literal("§7Sets the expected number of components in the payment message."), false);
+                                            client.player.sendMessage(Text.literal("§7Sets the amount of words in the payment message. Message is splitted by whitespaces."), false);
                                         }
                                         return 1;
                                     })
