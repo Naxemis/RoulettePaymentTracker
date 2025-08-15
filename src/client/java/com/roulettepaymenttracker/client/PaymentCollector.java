@@ -4,13 +4,10 @@ import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -52,14 +49,6 @@ public class PaymentCollector {
                 // Ignore
             }
         });
-    }
-
-    // changes specified component from payment message to string
-    private String extractStringFromComponent(TextContent component) throws Exception {
-        Method priceMethod = component.getClass().getDeclaredMethod("string"); // gets the method .string() from the calss that is not showed
-        priceMethod.setAccessible(true); // bypasses Java access checks444
-
-        return (String) priceMethod.invoke(component); // calls method on the object wiht no arguments
     }
 
     // collects all components from payment message and turns them into a List<Text>
